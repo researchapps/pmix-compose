@@ -1,0 +1,35 @@
+version: "3.9"
+
+x-shared-volumes: &shared-volumes
+  - ./hostfile.txt:/opt/hpc/etc/hostfile.txt:ro
+
+services:
+  node-1:
+    image: pmix:latest
+    hostname: node-1
+    container_name: node-1
+    networks:
+     - pmix-net
+    cap_add:
+      - SYS_NICE
+      - SYS_PTRACE
+    security_opt:
+     - seccomp=unconfined
+    volumes: *shared-volumes
+
+  node-2:
+    image: pmix:latest
+    hostname: node-2      
+    container_name: node-2
+    networks:
+      - pmix-net
+    cap_add:
+      - SYS_NICE
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
+    volumes: *shared-volumes
+
+networks:
+  pmix-net:
+    driver: bridge
