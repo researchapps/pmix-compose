@@ -104,6 +104,8 @@ ENV LD_LIBRARY_PATH=/usr/include:$LD_LIBRARY_PATH
 RUN cd /opt/hpc/local/build && \
     git clone -q -b master https://github.com/openpmix/prrte.git && \
     cd prrte && \
+    # This is the commit of master I used to build
+    git checkout 1a01710b7d47b7d1e1cca029e62b79252119537b && \
     git submodule update --init --recursive && \
     ./autogen.pl && \
     ./configure --prefix=/usr \
