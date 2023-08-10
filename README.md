@@ -57,6 +57,10 @@ Verify your user, and the content of the images:
 mpiuser
 ```
 
+<details>
+
+<summary>Failed attempts</summary>
+
 Test running something:
 
 ```bash
@@ -102,6 +106,10 @@ Segmentation fault (core dumped)
 
 Is that progress? lol! Need to keep trying. Ok next build - I can shell in as root:
 
+</details>
+
+Shell into the main node-1
+
 ```bash
 docker exec -it node-1 bash
 ```
@@ -109,18 +117,26 @@ docker exec -it node-1 bash
 It runs for one host:
 
 ```bash
-# mpirun -npernode 2 -N 2 -allow-run-as-root hostname
+$ mpirun -npernode 2 -N 2 -allow-run-as-root hostname
+```
+```console
 node-1
 node-1
 ```
 
-And at least it hangs for multiple hosts!
+And finally more than one!
 
 ```bash
 mpirun -npernode 2 -N 2 --hostfile /opt/hpc/etc/hostfile.txt -allow-run-as-root hostname
 ```
+```console
+node-1
+node-1
+node-2
+node-2
+```
 
-I've tried this maybe 10 ways so I'm going to stop for tonight.
+OH LAWD.
 
 ## License
 

@@ -156,6 +156,11 @@ RUN echo "mpiuser    ALL = NOPASSWD: ALL" >> /etc/sudoers
 # ------------------------------------------------------------
 USER root
 
+RUN cd /root && \
+    mkdir -p /run/sshd && \
+    ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa && chmod og+rX . && \
+    cd .ssh && cat id_rsa.pub > authorized_keys && chmod 644 authorized_keys
+
 ENV PRRTE_MCA_prrte_default_hostfile=/opt/hpc/etc/hostfile.txt
 # Need to do this so that the 'mpiuser' can have them too, not just root
 RUN echo "export LD_LIBRARY_PATH=/usr/lib64/usr/lib" >> /etc/bashrc && \
