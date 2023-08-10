@@ -44,22 +44,22 @@ node-2              pmix:latest         "/usr/sbin/sshd -D"   node-2            
 
 ### Interaction
 
+<details>
+
+<summary>Failed attempts</summary>
+
 Shell into the first node:
 
 ```bash
 $ docker exec -it -u mpiuser -w /home/mpiuser --env COLUMNS=`tput cols` --env LINES=`tput lines`  node-1 bash
 ```
 
-Verify your user, and the content of the images:
+Verify your user:
 
 ```bash
 [mpiuser@node-1 ~]$ whoami
 mpiuser
 ```
-
-<details>
-
-<summary>Failed attempts</summary>
 
 Test running something:
 

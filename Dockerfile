@@ -150,12 +150,6 @@ RUN  cd /home/mpiuser && \
 # ------------------------------------------------------------
 USER root
 RUN echo "mpiuser    ALL = NOPASSWD: ALL" >> /etc/sudoers
-
-# ------------------------------------------------------------
-# Adjust the default environment
-# ------------------------------------------------------------
-USER root
-
 RUN cd /root && \
     mkdir -p /run/sshd && \
     ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa && chmod og+rX . && \
