@@ -49,13 +49,11 @@ RUN yum -y update && \
     yum -y install epel-release && \
     yum clean all
 
-RUN mkdir -p /opt/hpc/local/build
-
-
 # ------------------------------------------------------------
 # Openmpi (and openpmix it seems?) Install
 # ------------------------------------------------------------
-RUN cd /opt/hpc/local/build && git clone https://github.com/open-mpi/ompi && \
+WORKDIR /opt/hpc/local/build
+RUN git clone -b v4.0.x https://github.com/open-mpi/ompi && \
     cd ompi && \
     git submodule update --init --recursive && \
     ./autogen.pl && \
@@ -70,25 +68,18 @@ ENV PMIX_ROOT=/opt/hpc/external/pmix
 ENV LD_LIBRARY_PATH="$PMIX_ROOT/lib:${LD_LIBRARY_PATH}"
 ENV PATH=/usr/lib64/openmpi/bin:$PATH
 
-ENV _BUILD_HWLOC_VERSION=2.8.0
-ENV _BUILD_LIBEVENT_VERSION=2.1.12
-ENV _BUILD_FLEX_VERSION=2.6.4
-
-WORKDIR /opt/hpc/src
-COPY ./src/libevent-${_BUILD_LIBEVENT_VERSION}-stable.tar.gz /opt/hpc/src/libevent-${_BUILD_LIBEVENT_VERSION}-stable.tar.gz
-COPY ./src/hwloc-${_BUILD_HWLOC_VERSION}.tar.gz /opt/hpc/src/hwloc-${_BUILD_HWLOC_VERSION}.tar.gz
-RUN mkdir build1 && \
-    cd build1 && \
-    tar -zxf /opt/hpc/src/libevent-${_BUILD_LIBEVENT_VERSION}-stable.tar.gz && \
-    cd libevent* && \
+RUN wget https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz && \
+    tar -xzvf libevent-2.1.12-stable.tar.gz && \
+    cd libevent-2.1.12-stable && \
     ./configure --prefix=/usr --disable-openssl && \
     make && \
-    make install && \
-    cd ../ && \
-    mkdir ./build2 && \
-    cd build2 && \
-    tar -zxf /opt/hpc/src/hwloc-${_BUILD_HWLOC_VERSION}.tar.gz && \
-    cd hwloc-${_BUILD_HWLOC_VERSION} && \
+    make install
+
+RUN wget https://github.com/open-mpi/hwloc/archive/refs/tags/hwloc-2.8.0.tar.gz && \
+    tar -xzvf hwloc-2.8.0.tar.gz && \
+    ls && \
+    cd hwloc-hwloc-2.8.0 && \
+    ./autogen.sh && \
     ./configure --prefix=/usr && \
     make && \
     make install
@@ -152,8 +143,7 @@ RUN groupadd -r mpiuser && useradd --no-log-init -r -m -b /home -g mpiuser -G wh
 USER mpiuser
 RUN  cd /home/mpiuser && \
         ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa && chmod og+rX . && \
-        cd .ssh && cat id_rsa.pub > authorized_keys && chmod 644 authorized_keys && \
-        exit
+        cd .ssh && cat id_rsa.pub > authorized_keys && chmod 644 authorized_keys
 
 # ------------------------------------------------------------
 # Give the user passwordless sudo powers
@@ -168,18 +158,7 @@ USER root
 
 ENV PRRTE_MCA_prrte_default_hostfile=/opt/hpc/etc/hostfile.txt
 # Need to do this so that the 'mpiuser' can have them too, not just root
-RUN echo "export PMIX_ROOT=/opt/hpc/external/pmix" >> /etc/bashrc && \
-    echo "export PRRTE_ROOT=/opt/hpc/external/prrte" >> /etc/bashrc  && \
-    echo "export MPI_ROOT=/opt/hpc/external/ompi" >> /etc/bashrc  && \
-    echo "export PATH=\$MPI_ROOT/bin:\$PATH" >> /etc/bashrc  && \
-    echo "export PATH=\$PRRTE_ROOT/bin:\$MPI_ROOT/bin:\$PATH" >> /etc/bashrc  && \
-    echo "export LD_LIBRARY_PATH=\$MPI_ROOT/lib:\$LD_LIBRARY_PATH" >> /etc/bashrc && \
-    echo "export LD_LIBRARY_PATH=\$PMIX_ROOT/lib:\$LD_LIBRARY_PATH" >> /etc/bashrc && \
-    echo "export LD_LIBRARY_PATH=$HWLOC_INSTALL_PATH/lib:$LIBEVENT_INSTALL_PATH/lib:\$LD_LIBRARY_PATH" >> /etc/bashrc && \
-    echo "export LD_LIBRARY_PATH=\$PRRTE_ROOT/lib:\$LD_LIBRARY_PATH" >> /etc/bashrc && \
-    echo "export PRRTE_MCA_prrte_default_hostfile=$PRRTE_MCA_prrte_default_hostfile" >> /etc/bashrc && \
-    echo "export LIBEVENT_INSTALL_PATH=/opt/hpc/local/libevent" >> /etc/bashrc && \
-    echo "export HWLOC_INSTALL_PATH=/opt/hpc/local/hwloc" >> /etc/bashrc && \
+RUN echo "export LD_LIBRARY_PATH=/usr/lib64/usr/lib" >> /etc/bashrc && \
     echo "ulimit -c unlimited" >> /etc/bashrc && \
     echo "alias pd=pushd" >> /etc/bashrc
 
