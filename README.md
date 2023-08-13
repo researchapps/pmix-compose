@@ -1,7 +1,5 @@
 # PMIx Docker Compose
 
-**NOTE THIS DOES NOT WORK**
-
 > I am convinced this software is evil in all the ways. I am posting for collective brainstorming.
 
 This is an experiment to learn about PMIx with Docker compose. It is based on the [pmix-swarm-toy-box](https://github.com/jjhursey/pmix-swarm-toy-box).
